@@ -6,8 +6,14 @@ import android.view.MotionEvent
 import org.rajawali3d.lights.DirectionalLight
 import org.rajawali3d.materials.Material
 import org.rajawali3d.math.vector.Vector3
-import org.rajawali3d.primitives.Cube
+import org.rajawali3d.primitives.Plane
 import org.rajawali3d.renderer.Renderer
+
+//TODO: Сделать нормальное отображение стен и пола пространства
+//TODO: Поменять цвет фона
+//TODO: Подумать, как реальзовать сетку для граней (словно лист в клетку)
+//TODO: Сделать окно для добавления объекта
+//TODO: Поумать над тем, как сделать так, чтобы можно было добавлять точки, ребра и т.д
 
 class GrayRenderer(context: Context) : Renderer(context) {
     private var previousDistance = 0f
@@ -18,8 +24,9 @@ class GrayRenderer(context: Context) : Renderer(context) {
     private var lastY = 0f
 
     override fun initScene() {//Управление сценой
-        GLES20.glClearColor(0.3f, 0.3f, 0.35f, 1.0f)
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
         GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+        GLES20.glDisable(GLES20.GL_BLEND)
 
         val light = DirectionalLight()//Свет
         light.position = Vector3(1.0, 1.0, 1.0)
@@ -30,12 +37,22 @@ class GrayRenderer(context: Context) : Renderer(context) {
         val material = Material()
         material.setColor(0xff0000)
         cube.material = material
+        cube.position = Vector3(0.0, -1.5, 0.0)
 
-        currentCamera.position = Vector3(0.0, 2.0, 8.0)
-        currentCamera.setLookAt(0.0, 0.0, 0.0)
-    }
+        // Пол
+        val floor = Plane(30f, 30f, 1, 1)
+        floor.rotate(Vector3(1.0, 0.0, 0.0), -90.0)
+        floor.position = Vector3(0.0, -2.0, 0.0)
+        val floorMaterial = Material()
+        floorMaterial.setColor(0xc4c4c4)
+        floor.material = floorMaterial
+        currentScene.addChild(floor)
+        floor.isDoubleSided = true
+}
+
     override fun onRender(ellapsedRealtime: Long, deltaTime: Double) {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT or GLES20.GL_STENCIL_BUFFER_BIT)
         super.onRender(ellapsedRealtime, deltaTime)
 
         val x = cameraRadius * Math.sin(cameraAngleX) * Math.cos(cameraAngleY)//

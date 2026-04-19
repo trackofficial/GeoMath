@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
 
         surfaceView = SurfaceView(this)
         renderer = GrayRenderer(this)
-
+        surfaceView.holder.setFormat(android.graphics.PixelFormat.RGBA_8888)
         surfaceView.setSurfaceRenderer(renderer)
         setContentView(surfaceView)
         surfaceView.requestFocus()
